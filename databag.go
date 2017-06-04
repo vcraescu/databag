@@ -5,7 +5,8 @@ import (
 	"reflect"
 )
 
-const defaultNamespaceSep = "."
+// Default namespace separator for the databag
+const DefaultNamespaceSep = "."
 
 type Bag interface {
 	Get(name string) (interface{}, bool)
@@ -16,17 +17,19 @@ type Bag interface {
 
 type DataBag struct {
 	data map[interface{}]interface{}
-	namespaceSep string
+	NamespaceSep string
 }
 
+// Creates an empty data bag.
 func NewDataBag() *DataBag {
 	return NewDataBagFrom(make(map[interface{}]interface{}))
 }
 
+// Creates a data bag from the given map with the default namespace separator ".".
 func NewDataBagFrom(data map[interface{}]interface{}) *DataBag {
 	return &DataBag{
 		data: data,
-		namespaceSep: defaultNamespaceSep,
+		NamespaceSep: DefaultNamespaceSep,
 	}
 }
 
@@ -34,8 +37,9 @@ func namespaceSplitter(name string, sep string) []string {
 	return strings.Split(name, sep)
 }
 
+// Retrieve the value from data bag base by namespace:
 func (d *DataBag) Get(name string) (interface{}, bool) {
-	keys := namespaceSplitter(name, d.namespaceSep)
+	keys := namespaceSplitter(name, d.NamespaceSep)
 
 	count := len(keys)
 	if count == 1 {
@@ -61,8 +65,9 @@ func (d *DataBag) Get(name string) (interface{}, bool) {
 	return nil, false
 }
 
+// Sets the a value into the data bag based by namespace:
 func (d *DataBag) Set(name string, value interface{}) {
-	keys := namespaceSplitter(name, d.namespaceSep)
+	keys := namespaceSplitter(name, d.NamespaceSep)
 
 	count := len(keys)
 	if count == 1 {
@@ -87,10 +92,12 @@ func (d *DataBag) Set(name string, value interface{}) {
 	}
 }
 
+// Returns the underlying map.
 func (d DataBag) All() map[interface{}]interface{} {
 	return d.data
 }
 
+// Deep merge the given data bag values
 func (d *DataBag) Merge(b Bag) {
 	m := deepMergeMap(d.All(), b.All())
 	for name, value := range m {

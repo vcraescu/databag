@@ -3,6 +3,7 @@ package databag
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
 func TestNamespaceSpliter(t *testing.T) {
@@ -11,7 +12,7 @@ func TestNamespaceSpliter(t *testing.T) {
 	assert.Len(t, parts, 4)
 }
 
-func TestDataBag_Get(t *testing.T) {
+func TestDataBagGet(t *testing.T) {
 	data := map[interface{}]interface{}{
 		"a": map[interface{}]interface{}{
 			"b": map[interface{}]interface{} {
@@ -53,7 +54,7 @@ func TestDataBag_Get(t *testing.T) {
 	}
 }
 
-func TestDataBag_Set(t *testing.T) {
+func TestDataBagSet(t *testing.T) {
 	bag := NewDataBag()
 
 	{
@@ -78,7 +79,7 @@ func TestDataBag_Set(t *testing.T) {
 	}
 }
 
-func TestDataBag_All(t *testing.T) {
+func TestDataBagAll(t *testing.T) {
 	bag := NewDataBag()
 
 	{
@@ -94,7 +95,7 @@ func TestDataBag_All(t *testing.T) {
 	}
 }
 
-func TestDataBag_Merge(t *testing.T) {
+func TestDataBagMerge(t *testing.T) {
 	a := NewDataBagFrom(map[interface{}]interface{}{
 		"messages": map[interface{}]interface{}{
 			"foo": map[interface{}]interface{} {
@@ -243,4 +244,43 @@ func TestDeepMergeMap(t *testing.T) {
 		r["moo"],
 		"This is another moo value",
 	)
+}
+
+func ExampleDataBag_Get() {
+	bag := NewDataBag()
+	bag.Set("a.b.c.d", "this is some value")
+
+	fmt.Println(bag.Get("a.b.c.d"))
+	// Output: this is some value
+}
+
+func ExampleDataBag_Set() {
+	bag := NewDataBag()
+	bag.Set("a.b.c.d", "this is some value")
+
+	fmt.Println(bag.Get("a.b.c.d"))
+	// Output: this is some value
+}
+
+func ExampleDataBag_All() {
+	bag := NewDataBag()
+	bag.Set("a.b.c.d", "this is some value")
+
+	fmt.Println(bag.All())
+	// Output: map[a:map[b:map[c:map[d:this is some value]]]]
+}
+
+func ExampleDataBag_Merge() {
+	a := NewDataBag()
+	a.Set("a.b.c.d", "this is d value")
+	a.Set("a.b.c.f", "this is f value")
+	a.Set("foo.bar", "this is bar value")
+
+	b := NewDataBag()
+	b.Set("a.b.c.f", "this is the other f value")
+	b.Set("foo.bar", "this is the other bar value")
+
+	a.Merge(b)
+	fmt.Println(a.All())
+	// Output: map[a:map[b:map[c:map[f:this is the other f value d:this is d value]]] foo:map[bar:this is the other bar value]]
 }
